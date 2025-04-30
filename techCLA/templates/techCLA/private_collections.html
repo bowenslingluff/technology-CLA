@@ -1,0 +1,70 @@
+{% extends 'techCLA/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+  {% if req_message %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      {{ req_message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endif %}
+
+  {% if alerts %}
+    <div class="alert alert-info mt-3" role="alert">
+      {% for alert in alerts %}
+        <p class="mb-1">Request to access <strong>{{ alert.collection.name }}</strong> was {{ alert.status|title }}.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2 class="mb-4">Private Collections</h2>
+
+  {% if private_collections or inaccessible %}
+    <div class="row">
+      {% for collection in private_collections %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ collection.name }}</h5>
+              <p class="card-text text-muted small">{{ collection.description|default:"No description." }}</p>
+
+              <div class="mb-2">
+                <span class="badge bg-success">Accessible</span>
+              </div>
+
+              <a href="{% url 'collection_detail' collection.id %}" class="btn btn-outline-primary btn-sm mt-2">
+                View Full Collection
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+      {% for collection in inaccessible %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm border-danger">
+            <div class="card-body">
+              <h5 class="card-title text-danger">{{ collection.name }}</h5>
+              <p class="card-text text-muted small">{{ collection.description|default:"No description." }}</p>
+
+              <div class="mb-2">
+                <span class="badge bg-danger">Restricted</span>
+              </div>
+
+              {% if user not in collection.allowed_users.all and collection.creator != user %}
+                <a class="btn btn-outline-primary btn-sm mt-2"
+                  href="{% url 'request_access' collection.id %}">
+                  Request Access
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">There are no private collections to display.</p>
+  {% endif %}
+</div>
+{% endblock %}

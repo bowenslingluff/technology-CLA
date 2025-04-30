@@ -1,0 +1,66 @@
+{% extends 'techCLA/base.html' %}
+{% block content %}
+
+<h2 class="mt-4">{{ collection.name }}</h2>
+<p class="text-muted mb-4">{{ collection.description }} </p>
+<p class="text-muted mb-4">{{ collection.get_visibility_display }} ({{ collection.creator.get_full_name|default:collection.creator.username }})</p>
+
+<form class="input-group mb-4" action="{{ request.path }}" method="get">
+  <input class="form-control w-50" type="search" placeholder="Searching items..." name="q">
+  <span><button class="btn btn-outline-dark" type="submit">Search</button></span>
+</form>
+
+<p style="color: gray;">
+  Showing all items{% if query %} matching "{{ query }}"{% endif %}
+</p>
+
+<div class="row">
+  {% for item in items %}
+    <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100 {% if item.status != 'available' %}unavailable{% endif %}">
+        
+        {% if item.image %}
+          <img src="{{ item.image.url }}" class="img-fluid rounded mb-2" style="max-width: 100%; height: auto;" alt="{{ item.title }}">
+        {% else %}
+          <div class="card-img-top bg-light text-center d-flex align-items-center justify-content-center" style="height: 180px;">
+            <span class="text-muted">No Image</span>
+          </div>
+        {% endif %}
+
+        <div class="card-body">
+          <h5 class="card-title">{{ item.title }}</h5>
+          <p class="card-text small">{{ item.description|default:"No description."|truncatewords:15 }}</p>
+
+          {% if item.status == 'available' and user.is_authenticated %}
+            <a href="{% url 'item_detail' item.title %}" class="btn btn-primary btn-sm w-100">View & Borrow</a>
+          {% else %}
+            <button class="btn btn-secondary btn-sm w-100 mb-2" disabled>{{ item.get_status_display }}</button>
+            <a href="{% url 'item_detail' item.title %}" class="btn btn-primary btn-sm w-100">View</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">There are no items in this collection.</p>
+  {% endfor %}
+</div>
+
+{% if user.is_authenticated and user.is_librarian or collection.creator == user %}
+  <div class="mb-4 d-flex gap-2">
+    <a href="{% url 'edit_collection' collection.pk %}" class="btn btn-warning">Edit Collection</a>
+  </div>
+{% endif %}
+
+{% if user == collection.creator or user.is_librarian %}
+  <div class="mb-4">
+    <a href="{% url 'delete_collection' collection.id %}" class="btn btn-danger">Delete Collection</a>
+  </div>
+{% endif %}
+
+<style>
+  .unavailable {
+    opacity: 0.6;
+  }
+</style>
+
+{% endblock %}
