@@ -1,4 +1,4 @@
-This repo was copied from a class project for CS 3240 Spring 2025 (UVA)
+This repo was copied from a class project for CS 3240 Spring 2025 (UVA) by Bowen Slingluff, Kyle Luong, Allen Huo, Elliot Hong, and Alex Song.
 
 This is a cataloging and lending application for pieces of technology (laptops, phones, speakers, chargers, etc.). 
 
